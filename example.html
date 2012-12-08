@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>imejs test</title>
+  <style type="text/css">
+    #editor{border:black 1px solid;width:400px;height:200px;}
+    #mode{color:white;background-color:blue;width:30px;height:20px;text-align:center;}
+  </style>
+  <script type="text/javascript" src="./ime.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function(){
+      ime.init(function(oCmd){
+        console.log(JSON.stringify(oCmd));
+        if(oCmd.name == "insChar"){
+          $("#editor").text($("#editor").text() + oCmd.value);
+        }else if(oCmd.name == "cmbChar"){
+          var sContents = $("#editor").text();
+          sContents = sContents.substring(0, sContents.length -1) + oCmd.value;
+          $("#editor").text(sContents);
+        }else if(oCmd.name == "delChar"){
+          var sContents = $("#editor").text();
+          sContents = sContents.substring(0, sContents.length -1);
+          $("#editor").text(sContents);
+        }
+      });
+      $("#mode").text(ime.getCurrentImName());
+    });
+  </script>
+</head>
+<body>
+<div id="editor"></div>
+<div id="mode"></div>
+</body>
+</html>

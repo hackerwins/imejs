@@ -1,4 +1,21 @@
 imejs
 =====
 
-javascript Input method Library for Korean
+Javascript IME(Input Method Editor)를 구현
+version: 0.01
+
+# 목적
+운영체제의 IME를 사용하지 않으므로 일관성이 있으며 한글 IME가 설치되지 않은 운영체제에도 한글을 입력할 수 있음
+
+# 지원 자판
+* 표준 두벌식 자판 : hangul 2 (KS X 5002)
+
+# 특징
+## 표준 두벌식 자판 오타 자동 수정
+* 자음 조합으로 된소리('ㄲ', 'ㄸ', 'ㅃ', 'ㅆ', 'ㅉ') 입력하기: ex) ㄱ+ㄱ=ㄲ
+* 모음 조합 입력하기: ㅏ+ㅣ= ㅐ
+* 모음, 자음 입력순서 보정하기: ex) ㅏ+ㄱ = 가
+
+# TODO
+* 세벌식 390 자판 지원
+* 일본어 자판 지원
