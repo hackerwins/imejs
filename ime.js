@@ -114,65 +114,78 @@
   })();
 
   /***************************
+   * buf
+   ***************************/
+  var buf = function() {
+    this.buf = '';
+    this.push = function(ch) {
+      this.buf += ch;
+    };
+
+    this.init = function() {
+      this.buf = this.buf.substring(0, this.buf.length -1);
+    };
+
+    this.tail = function(nTail) {
+      if(nTail > this.buf.length) {
+        throw 'IllegalArgument';
+      }
+      this.buf = this.buf.substring(this.buf.length - nTail);
+    };
+
+    this.flush = function() {
+      this.buf = '';
+    };
+
+    this.size = function() {
+      return this.buf.length;
+    }
+
+    this.get = function(){
+      return this.buf;
+    }
+  };
+
+  /***************************
    * hangul 2 (KS X 5002)
    ***************************/
   var imH2 = new (function() {
     this.name = 'H2';
-    this.buffer = '';
+    this.buf = new buf();
 
     //handleKeyEvent for hangul 2
     this.handleKeyEvent = function(oKeyEvent) {
       if(key.isAlpha(oKeyEvent.ch)) {
-        var sCmd = this.buffer.length == 0 ? 'insChar' : 'cmbChar';
-        var aHangul = this.parse(this.buffer + String.fromCharCode(oKeyEvent.ch));
+        var sCmd = this.buf.size() == 0 ? 'insChar' : 'cmbChar';
+        var aHangul = this.parse(this.buf.get() + String.fromCharCode(oKeyEvent.ch));
         return {name:sCmd, value:aHangul.join("")};
       }else{
         if(oKeyEvent.ch == key.ENTER) {
-          this.flushBuffer();
+          this.buf.flush();
           return {name:'insPara'};
         }else if(oKeyEvent.ch == key.BACKSPACE) {
-          if(this.buffer.length > 1) {
-            this.initBuffer(1);
-            return {name:'cmbChar', value:this.parse(this.buffer)};
+          if(this.buf.size() > 1) {
+            this.buf.init(1);
+            return {name:'cmbChar', value:this.parse(this.buf.get())};
           }else{
-            this.flushBuffer();
+            this.buf.flush();
             return {name:'delChar'};
           }
         }else{
-          this.flushBuffer();
+          this.buf.flush();
           return {};
         }
       }
     };
-
-    this.pushBuffer = function(ch) {
-      this.buffer += ch;
-    };
-
-    this.initBuffer = function() {
-      this.buffer = this.buffer.substring(0, this.buffer.length -1);
-    };
-
-    this.tailBuffer = function(nTail) {
-      if(nTail > this.buffer.length) {
-        throw 'IllegalArgument';
-      }
-      this.buffer = this.buffer.substring(this.buffer.length - nTail);
-    };
-
-    this.flushBuffer = function() {
-      this.buffer = '';
-    };
-
     this.parse = function(stream) {
-      this.flushBuffer();
+      this.buf.flush();
 
       var cho = -1, vowel = -1, jong = -1;
       var flushed = [];
       var aCh = stream.split('');
       for (var idx = 0, len = aCh.length; idx < len; idx++) {
         var ch = aCh[idx];
-        this.pushBuffer(ch);
+        this.buf.push(ch);
 
         var newCho = this.aCho.indexOf(ch);
         var newVowel = this.aVowel.indexOf(ch);
@@ -191,7 +204,7 @@
             if(combineCho >= 0) {
               cho = combineCho;
             }else{
-              this.tailBuffer(1);
+              this.buf.tail(1);
               flushed.push(this.getHangulFromCho(cho));
               cho = newCho;
             }
@@ -205,7 +218,7 @@
             if(newJong >= 0) {
               jong = newJong;
             }else{
-              this.tailBuffer(1);
+              this.buf.tail(1);
               flushed.push(this.getHangul(cho, vowel, jong));
               cho = newCho;
               vowel = -1;
@@ -216,7 +229,7 @@
             if(combineVowel >= 0) {
               vowel = combineVowel;
             }else{
-              this.tailBuffer(1);
+              this.buf.tail(1);
               flushed.push(this.getHangul(cho, vowel, jong));
               cho = -1;
               vowel = newVowel;
@@ -229,7 +242,7 @@
             if(combineJong >= 0) {
               jong = combineJong;
             }else{
-              this.tailBuffer(1);
+              this.buf.tail(1);
               flushed.push(this.getHangul(cho, vowel, jong));
               cho = newCho;
               vowel = -1;
@@ -237,7 +250,7 @@
             }
           }else if(newVowel >= 0) { //32. 강+ㅡ, flush
             var aSplited = this.getSplitedJong(jong);
-            this.tailBuffer(2);
+            this.buf.tail(2);
             flushed.push(this.getHangul(cho, vowel, aSplited[0]));
 
             cho = aSplited[aSplited.length-1];
@@ -253,7 +266,7 @@
             if(combineVowel >= 0) {
               vowel = newVowel;
             }else{
-              this.tailBuffer(1);
+              this.buf.tail(1);
               flushed.push(this.getHangul(cho, vowel, jong));
               cho = -1;
               vowel = newVowel;
