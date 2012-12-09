@@ -184,11 +184,50 @@
   };
 
   /***************************
+   * hangul util
+   ***************************/
+  var hangul = function() {
+    this.init = function(aCho, aVowel, aJong, aJaso){
+      this.aCho = aCho;
+      this.aVowel = aVowel;
+      this.aJong = aJong;
+      this.aJaso = aJaso;
+    }
+
+     // 0 -> ㄱ
+    this.getCho = function( cho ) {
+      var idx = this.aJaso.indexOf(this.aCho[cho]);
+      return String.fromCharCode(12593 + idx);
+    };
+
+     // 0 -> ㅏ
+    this.getVowel = function( vowel ) {
+      var idx = this.aJaso.indexOf(this.aVowel[vowel]);
+      return String.fromCharCode(12593 + idx);
+    };
+
+		 // 0,0,0 -> 가
+		this.get = function( cho, vowel, jong ){
+			if (cho >= 0 && vowel >= 0){
+				jong = jong == -1 ? 0 : jong;
+				return String.fromCharCode((cho * 21 + vowel) * 28 + jong + 44032);
+			}else if (cho >= 0){
+				return this.getCho(cho);
+			}else if (vowel >= 0){
+				return this.getVowel(vowel);
+			}else{
+				throw "IllegalArgument";
+			}
+		};
+  };
+
+  /***************************
    * hangul 2 (KS X 5002)
    ***************************/
   var imH2 = new (function() {
     this.name = 'H2';
     this.buf = new buf();
+    this.hangul = new hangul();
 
     //handleKeyEvent for hangul 2
     this.handleKeyEvent = function(oKeyEvent) {
@@ -224,7 +263,6 @@
       for (var idx = 0, len = aCh.length; idx < len; idx++) {
         var ch = aCh[idx];
         this.buf.push(ch);
-
         var newCho = this.aCho.indexOf(ch);
         var newVowel = this.aVowel.indexOf(ch);
 
@@ -243,7 +281,7 @@
               cho = combineCho;
             }else{
               this.buf.tail(1);
-              flushed.push(this.getHangulFromCho(cho));
+              flushed.push(this.hangul.getCho(cho));
               cho = newCho;
             }
           }else if(newVowel >= 0) { //12. ㄱ+ㅏ
@@ -257,7 +295,7 @@
               jong = newJong;
             }else{
               this.buf.tail(1);
-              flushed.push(this.getHangul(cho, vowel, jong));
+              flushed.push(this.hangul.get(cho, vowel, jong));
               cho = newCho;
               vowel = -1;
               jong = -1;
@@ -268,7 +306,7 @@
               vowel = combineVowel;
             }else{
               this.buf.tail(1);
-              flushed.push(this.getHangul(cho, vowel, jong));
+              flushed.push(this.hangul.get(cho, vowel, jong));
               cho = -1;
               vowel = newVowel;
             }
@@ -281,7 +319,7 @@
               jong = combineJong;
             }else{
               this.buf.tail(1);
-              flushed.push(this.getHangul(cho, vowel, jong));
+              flushed.push(this.hangul.get(cho, vowel, jong));
               cho = newCho;
               vowel = -1;
               jong = -1;
@@ -289,7 +327,7 @@
           }else if(newVowel >= 0) { //32. 강+ㅡ, flush
             var aSplited = this.getSplitedJong(jong);
             this.buf.tail(2);
-            flushed.push(this.getHangul(cho, vowel, aSplited[0]));
+            flushed.push(this.hangul.get(cho, vowel, aSplited[0]));
 
             cho = aSplited[aSplited.length-1];
             vowel = newVowel;
@@ -305,7 +343,7 @@
               vowel = newVowel;
             }else{
               this.buf.tail(1);
-              flushed.push(this.getHangul(cho, vowel, jong));
+              flushed.push(this.hangul.get(cho, vowel, jong));
               cho = -1;
               vowel = newVowel;
             }
@@ -313,7 +351,7 @@
         }
       };
 
-      flushed.push(this.getHangul(cho, vowel, jong));
+      flushed.push(this.hangul.get(cho, vowel, jong));
       return flushed;
     }
 
@@ -356,38 +394,6 @@
         return [this.aJong.indexOf(ch[0]), this.aCho.indexOf(ch[1])];
       }else{
         return [-1, this.aCho.indexOf(ch)];
-      }
-    };
-
-    /**
-     * 0 -> ㄱ
-     **/
-    this.getHangulFromCho = function( cho ) {
-      var idx = this.aJaso.indexOf(this.aCho[cho]);
-      return String.fromCharCode(12593 + idx);
-    };
-
-    /**
-     * 0 -> ㅏ
-     **/
-    this.getHangulFromVowel = function( vowel ) {
-      var idx = this.aJaso.indexOf(this.aVowel[vowel]);
-      return String.fromCharCode(12593 + idx);
-    };
-
-    /**
-     * 0,0,0 -> 가
-     **/
-    this.getHangul = function( cho, vowel, jong ) {
-      if(cho >= 0 && vowel >= 0) {
-        jong = jong == -1 ? 0 : jong;
-        return String.fromCharCode((cho * 21 + vowel) * 28 + jong + 44032);
-      }else if(cho >= 0) {
-        return this.getHangulFromCho(cho);
-      }else if(vowel >= 0) {
-        return this.getHangulFromVowel(vowel);
-      }else{
-        throw 'IllegalArgument';
       }
     };
 
@@ -522,6 +528,7 @@
       'ml',//ㅢ
       'l' //ㅣ
     ];
+    this.hangul.init(this.aCho, this.aVowel, this.aJong, this.aJaso);
   })();
 
   /***************************
@@ -531,6 +538,7 @@
   var imH390 = new (function() {
     this.name = 'H390';
     this.buf = new buf();
+    this.hangul = new hangul();
 
     //handleKeyEvent for hangul 390
     this.handleKeyEvent = function(oKeyEvent) {
@@ -550,9 +558,6 @@
 						this.buf.flush();
 						return {name:'delChar'};
 					}
-				}else if (key.isAlpha(oKeyEvent.ch)){
-					this.buf.flush();
-					return {name:'insChar', value:String.fromCharCode(oKeyEvent.ch)};
 				}else{
 					this.buf.flush();
 					return {};
@@ -589,21 +594,21 @@
 							cho = combineCho;
             }else{
 							this.buf.tail(1);
-							flushed.push(this.getHangulFromCho(cho));
+							flushed.push(this.hangul.getCho(cho));
 							cho = newCho;
 						}
 					}else if (newVowel >= 0){ //12. ㄱ+ㅏ
 						vowel = newVowel;
 					}else if(newJong >= 0){
 						this.buf.tail(1);
-						flushed.push(this.getHangulFromCho(cho));
+						flushed.push(this.hangul.getCho(cho));
             cho = this.getChoFromJong(newJong);
           }
 				//2. 가
 				}else if (cho >= 0 && vowel >= 0 && jong < 0){					
 					if ( newCho >= 0 ){
             this.buf.tail(1);
-            flushed.push(this.getHangul(cho, vowel, jong));
+            flushed.push(this.hangul.get(cho, vowel, jong));
             cho = newCho;
             vowel = -1;
 					}else if ( newVowel >= 0 ){ //22. 가+ㅣ, check flush
@@ -612,7 +617,7 @@
 							vowel = combineVowel;
 						}else{
 							this.buf.tail(1);
-							flushed.push(this.getHangul(cho, vowel, jong));
+							flushed.push(this.hangul.get(cho, vowel, jong));
 							cho = -1;
 							vowel = newVowel;
 						}
@@ -627,14 +632,14 @@
 							jong = combineJong;
 						}else{
 							this.buf.tail(1);
-							flushed.push(this.getHangul(cho, vowel, jong));
+							flushed.push(this.hangul.get(cho, vowel, jong));
 							cho = newCho;
 							vowel = -1;
 							jong = -1;
 						}
 					}else if (newVowel >= 0){ //32. 강+ㅡ, flush
             this.buf.tail(1);
-						flushed.push(this.getHangul(cho, vowel, jong));
+						flushed.push(this.hangul.get(cho, vowel, jong));
 						cho = -1;
 						vowel = newVowel;
 						jong = -1;
@@ -644,7 +649,7 @@
 							jong = combineJong;
 						}else{
 							this.buf.tail(1);
-							flushed.push(this.getHangul(cho, vowel, jong));
+							flushed.push(this.hangul.get(cho, vowel, jong));
 							cho = this.getChoFromJong(newJong);
 							vowel = -1;
 							jong = -1;
@@ -660,7 +665,7 @@
 							vowel = newVowel;
 						}else{
 							this.buf.tail(1);
-							flushed.push(this.getHangul(cho, vowel, jong));
+							flushed.push(this.hangul.get(cho, vowel, jong));
 							cho = -1;
 							vowel = newVowel;
 						}
@@ -671,7 +676,7 @@
 			};
       
 			if ( cho > -1 || vowel > -1 || jong > -1){ // jong first
-				flushed.push(this.getHangul(cho, vowel, jong));
+				flushed.push(this.hangul.get(cho, vowel, jong));
 			}
 
 			return flushed;
@@ -701,38 +706,6 @@
 		 **/
 		this.getCombineJong = function( jong, newJong ){
 			return this.getIndex("jong", this.aJong[jong] + this.aJong[newJong]);
-		};
-
-		/**
-		 * 0 -> ㄱ
-		 **/
-		this.getHangulFromCho = function( cho ){
-			var idx = this.aJaso.indexOf(this.aCho[cho]);
-			return String.fromCharCode(12593 + idx);
-		};
-
-		/**
-		 * 0 -> ㅏ
-		 **/
-		this.getHangulFromVowel = function( vowel ){
-			var idx = this.aJaso.indexOf(this.aVowel[vowel]);
-			return String.fromCharCode(12593 + idx);
-		};
-
-		/**
-		 * 0,0,0 -> 가
-		 **/
-		this.getHangul = function( cho, vowel, jong ){
-			if (cho >= 0 && vowel >= 0){
-				jong = jong == -1 ? 0 : jong;
-				return String.fromCharCode((cho * 21 + vowel) * 28 + jong + 44032);
-			}else if (cho >= 0){
-				return this.getHangulFromCho(cho);
-			}else if (vowel >= 0){
-				return this.getHangulFromVowel(vowel);
-			}else{
-				throw "IllegalArgument";
-			}
 		};
 
     this.getIndex = function(name, ch){
@@ -902,6 +875,7 @@
 			"d" //ㅣ
 		];
 
+    this.hangul.init(this.aCho, this.aVowel, this.aJong, this.aJaso);
   })();
 
   root.ime = new ime();
