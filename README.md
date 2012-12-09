@@ -1,11 +1,11 @@
 imejs
 =====
 
-Javascript IME(Input Method Editor) for CJK를 구현
-version: 0.01
+* Javascript IME(Input Method Editor) for CJK
+* version: 0.01
 
 # 목적
-운영체제의 IME를 사용하지 않으므로 일관성이 있으며 한글 IME가 설치되지 않은 운영체제에도 한글을 입력할 수 있음
+* 운영체제 IME를 사용하지 않으므로 일관성이 있으며 한글 IME가 설치되지 않은 운영체제에도 한글을 입력할 수 있음
 
 # 지원 자판
 * 표준 두벌식 자판 : hangul 2 (KS X 5002)
