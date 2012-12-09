@@ -19,8 +19,18 @@
       this.setEventListener(elHolder || document.body, fnHandler);
     };
 
+    //next Input Method
+    this.nextIm = function() {
+      this.currentIdx = (this.currentIdx + 1) % this.aIm.length;
+    };
+
+    //get current Input Method
+    this.getCurrentImName = function() {
+      return this.aIm[this.currentIdx].name;
+    };
+
     //attach event
-    this.attachEvent = function(elNode, sEvent, fHandler) {
+    var fnAttachEvent = function(elNode, sEvent, fHandler) {
       if(elNode.addEventListener) {
         elNode.addEventListener(sEvent, fHandler, false);
       }else{
@@ -36,33 +46,28 @@
       elHolder.appendChild(elListener);
 
       var that = this;
-      this.attachEvent(elListener, 'keydown', function(e) {
+      fnAttachEvent(elListener, 'keydown', function(e) {
         fnHandler(that.parseEvent(e));
         e.preventDefault();
       });
       elListener.focus();
     };
 
-    //change Input Method
-    this.changeIm = function() {
-      this.currentIdx = (this.currentIdx + 1) % this.aIm.length;
-    };
-
     //parse event
     this.parseEvent = function(e) {
       var oKeyEvent = key.getKeyEvent(e); //native event 2 oKeyEvent
+      if(oKeyEvent.shift && key.SPACE == oKeyEvent.ch){
+        this.nextIm();
+        return {name: "nextIm"};
+      } 
       if(!oKeyEvent.ch){ return {}; }
       return this.aIm[this.currentIdx].handleKeyEvent(oKeyEvent);
-    };
-
-    //get current Input Method
-    this.getCurrentImName = function() {
-      return this.aIm[this.currentIdx].name;
     };
   }
 
   /***************************
    * key util : predicate
+   * (keydown event dependent)
    ***************************/
   var key = new (function() {
     this.BACKSPACE = 8;
@@ -70,6 +75,8 @@
     this.SHIFT = 16;
     this.CTRL = 17;
     this.ALT = 18;
+
+    this.SPACE = 32;
 
     this.A = 65;
     this.Z = 90;
@@ -80,8 +87,15 @@
 
     //convert native keydown event to key event
     this.getKeyEvent = function(e) {
-      var oKeyEvent = {}; 
+      //set modifier
+      var oKeyEvent = {
+        shift : e.shiftKey,
+        ctrl : e.ctrlKey,
+        alt : e.altKey,
+        meta : e.metaKey
+      }; 
 
+      //set ch
       var code = e.charCode || e.keyCode;
       if(!this.isModifier(code)){
         if(!e.shiftKey && this.isAlpha(code)) {
@@ -516,6 +530,7 @@
   var imH3 = new (function() {
     this.name = 'H3';
     this.handleKeyEvent = function(e) {
+      return {};
     };
   })();
 

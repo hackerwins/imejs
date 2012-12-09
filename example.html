@@ -4,33 +4,49 @@
   <meta charset="UTF-8">
   <title>imejs test</title>
   <style type="text/css">
-    #editor{border:black 1px solid;width:400px;height:200px;}
+    body{color:white;background-color:#191919;}
+    body>div{width:400px;}
+    #editor{border:white 1px solid;height:200px;}
     #mode{color:white;background-color:blue;width:30px;height:20px;text-align:center;}
+    #status{background-color:#474747;border:white 1px solid;}
+    #status>div{float:right;}
   </style>
   <script type="text/javascript" src="./ime.js"></script>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function(){
-      ime.init(function(oCmd){
-        console.log(JSON.stringify(oCmd));
-        if(oCmd.name == "insChar"){
+      //01. keyCommandHandler
+      var fnKeyCommandHandler = function(oCmd){
+        //nextIm
+        if(oCmd.name == "nextIm"){
+          $("#mode").text(ime.getCurrentImName());
+        //insert char
+        }else if(oCmd.name == "insChar"){
           $("#editor").text($("#editor").text() + oCmd.value);
+        //combine char
         }else if(oCmd.name == "cmbChar"){
           var sContents = $("#editor").text();
           sContents = sContents.substring(0, sContents.length -1) + oCmd.value;
           $("#editor").text(sContents);
+        //delete char
         }else if(oCmd.name == "delChar"){
           var sContents = $("#editor").text();
           sContents = sContents.substring(0, sContents.length -1);
           $("#editor").text(sContents);
         }
-      });
+      }
+
+      //02. init Input Method Editor
+      console.log($("#status")[0]);
+      ime.init(fnKeyCommandHandler, $("#status")[0]);
+
+      //paint InputMethodName
       $("#mode").text(ime.getCurrentImName());
     });
   </script>
 </head>
 <body>
 <div id="editor"></div>
-<div id="mode"></div>
+<div id="status"><div id="mode"></div><div>shift+space::</div></div>
 </body>
 </html>
