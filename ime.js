@@ -37,7 +37,7 @@
 
       var that = this;
       this.attachEvent(elListener, 'keydown', function(e) {
-        fnHandler(that.parseEvent(key.getKeyEvent(e)));
+        fnHandler(that.parseEvent(e));
         e.preventDefault();
       });
       elListener.focus();
@@ -49,7 +49,9 @@
     };
 
     //parse event
-    this.parseEvent = function(oKeyEvent) {
+    this.parseEvent = function(e) {
+      var oKeyEvent = key.getKeyEvent(e); //native event 2 oKeyEvent
+      if(!oKeyEvent.ch){ return {}; }
       return this.aIm[this.currentIdx].handleKeyEvent(oKeyEvent);
     };
 
@@ -65,20 +67,40 @@
   var key = new (function() {
     this.BACKSPACE = 8;
     this.ENTER = 13;
+    this.SHIFT = 16;
+    this.CTRL = 17;
+    this.ALT = 18;
+
     this.A = 65;
     this.Z = 90;
+
+    this.METAKEY = 91;
+    this.WIN = 92;
     var CASE_PADDING = 32; // case_padding alpha upper <->  lower
 
     //convert native keydown event to key event
     this.getKeyEvent = function(e) {
-      var ch = e.charCode || e.keyCode;
-      if(!e.shiftKey && this.isAlpha(ch)) {
-        ch += CASE_PADDING;
+      var oKeyEvent = {}; 
+
+      var code = e.charCode || e.keyCode;
+      if(!this.isModifier(code)){
+        if(!e.shiftKey && this.isAlpha(code)) {
+          code += CASE_PADDING;
+        }
+        oKeyEvent.ch = code;
       }
-      return {ch: ch}; 
+
+      return oKeyEvent;
+    };
+
+    // predicate modifier
+    // http://en.wikipedia.org/wiki/Modifier_key
+    // shift, ctrl, alt, altgr, meta, win, cmd, fn, super, hyper
+    this.isModifier = function(keyCode){
+      return [ this.SHIFT, this.CTRL, this.ALT, this.METAKEY, this.WIN ].indexOf(keyCode) != -1;
     };
     
-    //predciate : A-Z + a~z
+    //predicate : A-Z + a~z
     this.isAlpha = function(keyCode) {
         return this.isUpperAlpha(keyCode) || this.isLowerAlpha(keyCode);
     };
