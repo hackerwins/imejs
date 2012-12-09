@@ -5,6 +5,7 @@
 
   /***************************
    * main input method module
+   * (dom dependent)
    ***************************/
   var ime = function() {
     /**
@@ -94,7 +95,7 @@
   })();
 
   /***************************
-   * english
+   * English
    ***************************/
   var imEN = new (function() {
     this.name = 'EN';
@@ -177,6 +178,7 @@
         }
       }
     };
+
     this.parse = function(stream) {
       this.buf.flush();
 
@@ -295,10 +297,11 @@
      * combine chosung (ex: ㅜ+ㅓ=ㅝ)
      **/
     this.getCombineVowel = function( vowel1, vowel2 ) {
-      this.aVowel[vowel1] + this.aVowel[vowel2]
-      oMapping = {'kl' : 'o'}
-
-      return this.aVowel.indexOf(this.aVowel[vowel1] + this.aVowel[vowel2]);
+      var oMapping = {
+        'kl' : 'o' //ㅏ+ㅣ=ㅐ
+      }
+      var combined = this.aVowel[vowel1] + this.aVowel[vowel2];
+      return this.aVowel.indexOf(oMapping[combined] || combined);
     };
 
     /**
