@@ -1,7 +1,7 @@
 imejs
 =====
 
-Javascript IME(Input Method Editor)를 구현
+Javascript IME(Input Method Editor) for CJK를 구현
 version: 0.01
 
 # 목적
@@ -17,5 +17,8 @@ version: 0.01
 * 모음, 자음 입력순서 보정하기: ex) ㅏ+ㄱ = 가
 
 # TODO
-* 세벌식 390 자판 지원
+* 특수기호 지원
+* 한글 세벌식 최종, 390 자판 지원
+* 한글 두벌식 일부 동시치기 지원
+* 한글 세벌식 전부 동시치기 지원
 * 일본어 자판 지원
