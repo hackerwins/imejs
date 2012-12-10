@@ -7,6 +7,9 @@ imejs
 # 목적
 * 운영체제 IME를 사용하지 않으므로 일관성이 있으며 한글 IME가 설치되지 않은 운영체제에도 한글을 입력할 수 있음
 
+# 의존성
+* Javascript, DOM(Document Object Model)외 의존성 없음
+
 # 지원 자판
 * 표준 두벌식 자판 : hangul 2 (KS X 5002)
 
@@ -17,6 +20,7 @@ imejs
 * 모음, 자음 입력순서 보정하기: ex) ㅏ+ㄱ = 가
 
 # 인터페이스
+외부에서 라이브러리를 사용하는 예제코드는 jQuery 1.8.3을 사용
 ```javascript
 $(document).ready(function(){
   // 01. keyCommandHandler를 정의한다.
