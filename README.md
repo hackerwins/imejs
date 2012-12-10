@@ -1,7 +1,5 @@
-imejs
-=====
-
-under construction
+imejs(Under Construction)
+=========================
 
 * Javascript IME(Input Method Editor) for CJK
 * version: 0.01
