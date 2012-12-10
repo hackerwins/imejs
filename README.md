@@ -1,6 +1,8 @@
 imejs
 =====
 
+under construction
+
 * Javascript IME(Input Method Editor) for CJK
 * version: 0.01
 
