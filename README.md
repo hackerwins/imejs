@@ -16,6 +16,37 @@ imejs
 * 모음 조합 입력하기: ㅏ+ㅣ= ㅐ
 * 모음, 자음 입력순서 보정하기: ex) ㅏ+ㄱ = 가
 
+# 인터페이스
+'''javascript
+    $(document).ready(function(){
+      /**
+       * 01. keyCommandHandler를 정의한다.
+       * @param oCmd 키에 대한 명령객체
+       */
+      var fnKeyCommandHandler = function(oCmd){
+        if(oCmd.name == "nextIm"){ //다른 IME를 선택명령 
+          fnPaintIMName();
+
+        }else if(oCmd.name == "insChar"){ //문자입력
+          $("#editor").text($("#editor").text() + oCmd.value);
+
+        }else if(oCmd.name == "cmbChar"){ //문자입력중(조합상태)
+          var sContents = $("#editor").text();
+          sContents = sContents.substring(0, sContents.length -1) + oCmd.value;
+          $("#editor").text(sContents);
+
+        }else if(oCmd.name == "delChar"){ //문자삭제
+          var sContents = $("#editor").text();
+          sContents = sContents.substring(0, sContents.length -1);
+          $("#editor").text(sContents);
+        }
+      }
+
+      //02. IME 초기화, 키입력에 대한 자체 포커스를 갖음
+      ime.init(fnKeyCommandHandler, $("#status")[0]);
+    });
+'''
+
 # TODO
 * 특수기호 지원
 * 한글 세벌식 최종, 390 자판 지원
