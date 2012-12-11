@@ -36,11 +36,12 @@ $(document).ready(function(){
       var sContents = $("#editor").text();
       sContents = sContents.substring(0, sContents.length -1);
       $("#editor").text(sContents);
-    }else if(oCmd.name == "nextIm"){ //다른 IME를 선택명령 
+    }else if(oCmd.name == "nextIm"){ //다른 IME를 선택명령, 2벌식>영어>3벌식(390) 순
     }
   } 
   //02. IME 초기화, 키입력에 대한 자체 포커스를 갖음
-  ime.init(fnKeyCommandHandler, $("#status")[0]);
+  var elHolder = $("#status")[0]; //이벤트를 받는 리스너의 홀더 엘리먼트
+  ime.init(fnKeyCommandHandler, elHolder);
 });
 ```
 
