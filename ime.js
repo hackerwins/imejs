@@ -14,6 +14,7 @@
      * @param elHolder for eventListener (optional, default: body element)
      */
     this.init = function(fnHandler, elHolder) {
+      //Input Methods
       this.aIm = [imH2, imEN, imH390];
       this.currentIdx = 0;
       this.setEventListener(elHolder || document.body, fnHandler);
@@ -46,24 +47,40 @@
       elHolder.appendChild(elListener);
 
       var that = this;
+      fnAttachEvent(elListener, 'keypress', function(e) {
+        var oCmd = that.parseKeypress(e);
+        if(oCmd.name){
+          fnHandler(oCmd);
+          e.preventDefault();
+        }
+      });
       fnAttachEvent(elListener, 'keydown', function(e) {
-        fnHandler(that.parseEvent(e));
-        e.preventDefault();
+        var oCmd = that.parseKeydown(e);
+        if(oCmd.name){
+          fnHandler(oCmd);
+          e.preventDefault();
+        }
       });
       elListener.focus();
     };
 
     //parse event
-    this.parseEvent = function(e) {
+    this.parseKeypress = function(e) {
       var oKeyEvent = key.getKeyEvent(e); //native event 2 oKeyEvent
-      if(oKeyEvent.shift && key.SPACE == oKeyEvent.ch){
+      if(!oKeyEvent.charCode){ return {}; }
+      return this.aIm[this.currentIdx].handleKeyEvent(oKeyEvent);
+    };
+
+    this.parseKeydown = function(e) {
+      var oKeyEvent = key.getKeyEventFromKeydown(e); //native event 2 oKeyEvent
+      if(oKeyEvent.shift && key.SPACE == oKeyEvent.charCode){
         this.nextIm();
         return {name: "nextIm"};
       } 
-      if(!oKeyEvent.ch){ return {}; }
+      if(!oKeyEvent.charCode){ return {}; }
       return this.aIm[this.currentIdx].handleKeyEvent(oKeyEvent);
     };
-  }
+ }
 
   /***************************
    * key util : predicate
@@ -78,34 +95,59 @@
 
     this.SPACE = 32;
 
+    this.PAGEUP = 33;
+    this.PAGEDOWN = 34;
+    this.END = 35;
+    this.HOME = 36;
+    this.LEFT = 37;
+    this.UP = 38;
+    this.RIGHT = 39;
+    this.DOWN = 40;
+
+    this.ZERO = 48;
+    this.NINE = 57;
+
     this.A = 65;
     this.Z = 90;
 
     this.METAKEY = 91;
     this.WIN = 92;
+
+    this.NUM_ZERO = 96;
+    this.NUM_NINE = 105;
+
     var CASE_PADDING = 32; // case_padding alpha upper <->  lower
 
-    //convert native keydown event to key event
+    //convert native keypress event to key event
     this.getKeyEvent = function(e) {
       //set modifier
       var oKeyEvent = {
         shift : e.shiftKey,
         ctrl : e.ctrlKey,
         alt : e.altKey,
-        meta : e.metaKey
+        meta : e.metaKey,
+        charCode : e.charCode
       }; 
-
-      //set ch
-      var code = e.charCode || e.keyCode;
-      if(!this.isModifier(code)){
-        if(!e.shiftKey && this.isAlpha(code)) {
-          code += CASE_PADDING;
-        }
-        oKeyEvent.ch = code;
-      }
 
       return oKeyEvent;
     };
+
+    //convert native keydown event to key event
+    this.getKeyEventFromKeydown = function(e) {
+     //set modifier
+      var oKeyEvent = {
+        shift : e.shiftKey,
+        ctrl : e.ctrlKey,
+        alt : e.altKey,
+        meta : e.metaKey,
+      };
+
+      if(e.keyCode == key.BACKSPACE) {
+        oKeyEvent.charCode = e.keyCode;
+      }
+
+      return oKeyEvent;
+    }
 
     // predicate modifier
     // http://en.wikipedia.org/wiki/Modifier_key
@@ -114,12 +156,28 @@
       return [ this.SHIFT, this.CTRL, this.ALT, this.METAKEY, this.WIN ].indexOf(keyCode) != -1;
     };
 
-    //predicate : A-Z + a~z
+    //predicate : navigation, arrow, home, end, pageup, pagedown
+    this.isNavigation = function(keyCode) {
+      return this.PAGEUP <= keyCode && keyCode <= this.DOWN;
+    }
+
+    //predicate : A-Z + a-z + 0-9
+    this.isAlnum = function(keyCode) {
+      return this.isNumeric(keyCode) || this.isAlpha(keyCode);
+    }
+
+    //predicate : 0-9
+    this.isNumeric = function(keyCode) {
+      return (this.ZERO <= keyCode && keyCode <= this.NINE) ||
+             (this.NUM_ZERO <= keyCode && keyCode <= this.NUM_NINE);
+    }
+
+    //predicate : A-Z + a-z
     this.isAlpha = function(keyCode) {
       return this.isUpperAlpha(keyCode) || this.isLowerAlpha(keyCode);
     };
 
-    //predicate : A~Z
+    //predicate : A-Z
     this.isUpperAlpha = function(keyCode) {
       return this.A <= keyCode && keyCode <= this.Z;
     };
@@ -138,14 +196,12 @@
 
     //handleKeyEvent for english
     this.handleKeyEvent = function(oKeyEvent) {
-      if(key.isAlpha(oKeyEvent.ch)) {
-        return {name:'insChar', value:String.fromCharCode(oKeyEvent.ch)};
-      }else if(oKeyEvent.ch == key.ENTER) {
+      if(oKeyEvent.charCode == key.ENTER) {
         return {name:'insPara'};
-      }else if(oKeyEvent.ch == key.BACKSPACE) {
+      }else if(oKeyEvent.charCode == key.BACKSPACE) {
         return {name:'delChar'};
       }else{
-        throw 'error';
+        return {name:'insChar', value:String.fromCharCode(oKeyEvent.charCode)};
       }
     };
   })();
@@ -231,26 +287,24 @@
 
     //handleKeyEvent for hangul 2
     this.handleKeyEvent = function(oKeyEvent) {
-      if(key.isAlpha(oKeyEvent.ch)) {
-        var sCmd = this.buf.size() == 0 ? 'insChar' : 'cmbChar';
-        var aHangul = this.parse(this.buf.get() + String.fromCharCode(oKeyEvent.ch));
-        return {name:sCmd, value:aHangul.join("")};
-      }else{
-        if(oKeyEvent.ch == key.ENTER) {
-          this.buf.flush();
-          return {name:'insPara'};
-        }else if(oKeyEvent.ch == key.BACKSPACE) {
-          if(this.buf.size() > 1) {
-            this.buf.init(1);
-            return {name:'cmbChar', value:this.parse(this.buf.get())};
-          }else{
-            this.buf.flush();
-            return {name:'delChar'};
-          }
+      if(oKeyEvent.charCode == key.ENTER) {
+        this.buf.flush();
+        return {name:'insPara'};
+      }else if(oKeyEvent.charCode == key.BACKSPACE) {
+        if(this.buf.size() > 1) {
+          this.buf.init(1);
+          return {name:'cmbChar', value:this.parse(this.buf.get())};
         }else{
           this.buf.flush();
-          return {};
+          return {name:'delChar'};
         }
+      }else if(key.isAlpha(oKeyEvent.charCode)) {
+        var sCmd = this.buf.size() == 0 ? 'insChar' : 'cmbChar';
+        var aHangul = this.parse(this.buf.get() + String.fromCharCode(oKeyEvent.charCode));
+        return {name:sCmd, value:aHangul.join("")};
+      }else{
+        this.buf.flush();
+        return {name:'insChar', value:String.fromCharCode(oKeyEvent.charCode)};
       }
     };
 
@@ -542,34 +596,32 @@
 
     //handleKeyEvent for hangul 390
     this.handleKeyEvent = function(oKeyEvent) {
-      if (key.isAlpha(oKeyEvent.ch) && key.SPACE != oKeyEvent.ch){
-        var sCmd = this.buf.size() == 0 ? 'insChar' : 'cmbChar';
-        var aHangul = this.parse(this.buf.get() + String.fromCharCode(oKeyEvent.ch));
-        return {name:sCmd, value:aHangul.join("")};
-      }else{
-        if (oKeyEvent.ch == key.ENTER){
-          this.buf.flush();
-          return {name:'insPara'};
-        }else if (oKeyEvent.ch == key.BACKSPACE){
-          if (this.buf.size() > 1){
-            this.buf.init(1);
-            return {name:"cmbChar", value:this.parse(this.buf.get())};
-          }else{
-            this.buf.flush();
-            return {name:'delChar'};
-          }
+      if (oKeyEvent.charCode == key.ENTER){
+        this.buf.flush();
+        return {name:'insPara'};
+      }else if (oKeyEvent.charCode == key.BACKSPACE){
+        if (this.buf.size() > 1){
+          this.buf.init(1);
+          return {name:'cmbChar', value:this.parse(this.buf.get())};
         }else{
           this.buf.flush();
-          return {};
+          return {name:'delChar'};
         }
+      }else if (key.isAlpha(oKeyEvent.charCode)){
+        var sCmd = this.buf.size() == 0 ? 'insChar' : 'cmbChar';
+        var aHangul = this.parse(this.buf.get() + String.fromCharCode(oKeyEvent.charCode));
+        return {name:sCmd, value:aHangul.join("")};
+      }else{
+        this.buf.flush();
+        return {name:'insChar', value:String.fromCharCode(oKeyEvent.charCode)};
       }
     };
 
-    this.parse = function(stream){
+    this.parse = function(stream) {
       this.buf.flush();
+
       var cho = -1, vowel = -1, jong = -1;
       var flushed = [];
-
       var aCh = stream.split('');
       for (var idx = 0, len = aCh.length; idx < len; idx++) {
         var ch = aCh[idx];
