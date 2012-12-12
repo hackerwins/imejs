@@ -142,7 +142,7 @@
         meta : e.metaKey,
       };
 
-      if(e.keyCode == key.BACKSPACE) {
+      if(e.keyCode == key.BACKSPACE || e.keyCode == key.SPACE) {
         oKeyEvent.charCode = e.keyCode;
       }
 
