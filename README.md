@@ -1,16 +1,20 @@
-imejs(Under Construction)
+imejs
 =========================
 
 * Javascript IME(Input Method Editor) for CJK
-* version: 0.01
+* version: 0.1
 
 # 목적
 * 운영체제 IME를 사용하지 않으므로 일관성이 있으며 한글 IME가 설치되지 않은 운영체제에도 한글을 입력할 수 있음
+
+# 지원 브라우저
+* Browser : Chrome, Safari, IE 8~, FireFox
 
 # 의존성
 * Javascript, DOM(Document Object Model)외 의존성 없음
 
 # 지원 자판
+* 표준 영문 자판
 * 표준 두벌식 자판 : hangul 2 (KS X 5002)
 
 # 특징
@@ -47,7 +51,6 @@ $(document).ready(function(){
 ```
 
 # TODO
-* 특수기호 지원
 * 한글 세벌식 최종, 390 자판 지원
 * 한글 두벌식 일부 동시치기 지원
 * 한글 세벌식 전부 동시치기 지원
