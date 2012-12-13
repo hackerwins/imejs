@@ -15,7 +15,7 @@
      */
     this.init = function(fnHandler, elHolder) {
       //Input Methods
-      this.aIm = [imH2, imEN, imH390];
+      this.aIm = [imH2, imEN];
       this.currentIdx = 0;
       this.setEventListener(elHolder || document.body, fnHandler);
     };
