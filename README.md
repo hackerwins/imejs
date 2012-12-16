@@ -24,12 +24,15 @@ imejs
 * 모음, 자음 입력순서 보정하기: ex) ㅏ+ㄱ = 가
 
 # 인터페이스
-include js
-'''html
-<script type="text/javascript" src="./ime.js"></script>
-'''
 
-use script
+* include js
+
+```html
+<script type="text/javascript" src="./ime.js"></script>
+```
+
+* use script
+
 ```javascript
 //예제코드는 jQuery 1.8.3을 사용, 돌아가는 코드는 example.js 참고
 $(document).ready(function(){
