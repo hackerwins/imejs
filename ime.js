@@ -80,7 +80,7 @@
       if(!oKeyEvent.charCode){ return {}; }
       return this.aIm[this.currentIdx].handleKeyEvent(oKeyEvent);
     };
- }
+ };
 
   /***************************
    * key util : predicate
@@ -139,7 +139,7 @@
         shift : e.shiftKey,
         ctrl : e.ctrlKey,
         alt : e.altKey,
-        meta : e.metaKey,
+        meta : e.metaKey
       };
 
       if(e.keyCode == key.BACKSPACE || e.keyCode == key.SPACE) {
@@ -147,7 +147,7 @@
       }
 
       return oKeyEvent;
-    }
+    };
 
     // predicate modifier
     // http://en.wikipedia.org/wiki/Modifier_key
@@ -159,18 +159,18 @@
     //predicate : navigation, arrow, home, end, pageup, pagedown
     this.isNavigation = function(keyCode) {
       return this.PAGEUP <= keyCode && keyCode <= this.DOWN;
-    }
+    };
 
     //predicate : A-Z + a-z + 0-9
     this.isAlnum = function(keyCode) {
       return this.isNumeric(keyCode) || this.isAlpha(keyCode);
-    }
+    };
 
     //predicate : 0-9
     this.isNumeric = function(keyCode) {
       return (this.ZERO <= keyCode && keyCode <= this.NINE) ||
              (this.NUM_ZERO <= keyCode && keyCode <= this.NUM_NINE);
-    }
+    };
 
     //predicate : A-Z + a-z
     this.isAlpha = function(keyCode) {
@@ -232,11 +232,11 @@
 
     this.size = function() {
       return this.buf.length;
-    }
+    };
 
     this.get = function(){
       return this.buf;
-    }
+    };
   };
 
   /***************************
@@ -248,7 +248,7 @@
       this.aVowel = aVowel;
       this.aJong = aJong;
       this.aJaso = aJaso;
-    }
+    };
 
     // 0 -> ㄱ
     this.getCho = function( cho ) {
@@ -930,5 +930,23 @@
     this.hangul.init(this.aCho, this.aVowel, this.aJong, this.aJaso);
   })();
 
-  root.ime = new ime();
+  var imejs = new ime();
+
+  // AMD / RequireJS
+  if (typeof define !== 'undefined' && define.amd) {
+    define('imejs', [], function () {
+      return imejs;
+    });
+  }
+  
+  // Node.js
+  else if (typeof module !== 'undefined' && module.exports) {
+    module.exports = imejs;
+  }
+  
+  // included directly via <script> tag
+  else {
+    root.ime = imejs;
+  }
+  
 })(this); //root object, window in the browser
