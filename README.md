@@ -62,7 +62,7 @@ $(document).ready(function(){
 # 테스트
 
 ```
-  moch -R spec
+mocha -R spec
 ```
 
 # TODO
