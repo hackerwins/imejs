@@ -57,7 +57,7 @@ $(document).ready(function(){
   var elHolder = $("#status")[0]; //이벤트를 받는 리스너의 홀더 엘리먼트
   ime.init(fnKeyCommandHandler, elHolder);
 });
-
+```
 
 # 테스트
 
