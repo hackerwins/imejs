@@ -61,8 +61,8 @@ $(document).ready(function(){
 
 # 테스트
 
-```bash
-moch -R spec
+```
+  moch -R spec
 ```
 
 # TODO
