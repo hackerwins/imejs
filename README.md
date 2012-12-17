@@ -57,6 +57,11 @@ $(document).ready(function(){
   var elHolder = $("#status")[0]; //이벤트를 받는 리스너의 홀더 엘리먼트
   ime.init(fnKeyCommandHandler, elHolder);
 });
+
+
+# 테스트
+
+
 ```
 
 # TODO
@@ -64,3 +69,4 @@ $(document).ready(function(){
 * 한글 두벌식 일부 동시치기 지원
 * 한글 세벌식 전부 동시치기 지원
 * 일본어 자판 지원
+
