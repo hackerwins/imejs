@@ -3,14 +3,10 @@ imejs
 
 * Javascript IME(Input Method Editor) for CJK
 * version: 0.1
+* 목적: 운영체제 IME를 사용하지 않으므로 일관성이 있으며 한글 IME가 설치되지 않은 운영체제에도 한글을 입력할 수 있음
 
-# 목적
-* 운영체제 IME를 사용하지 않으므로 일관성이 있으며 한글 IME가 설치되지 않은 운영체제에도 한글을 입력할 수 있음
-
-# 지원 브라우저
+# 지원 브라우저, 의존성
 * Browser : Chrome, Safari, IE 8~, FireFox
-
-# 의존성
 * Javascript, DOM(Document Object Model)외 의존성 없음
 
 # 지원 자판
@@ -23,15 +19,14 @@ imejs
 * 모음 조합 입력하기: ㅏ+ㅣ= ㅐ
 * 모음, 자음 입력순서 보정하기: ex) ㅏ+ㄱ = 가
 
-# 인터페이스
-
-* include js
+# 사용방법
+먼저 ime.js 파일을 페이지에 추가한다.
 
 ```html
 <script type="text/javascript" src="./ime.js"></script>
 ```
 
-* use script
+그리고 스크립트 테그에 다음과 같이 코딩한다.
 
 ```javascript
 //예제코드는 jQuery 1.8.3을 사용, 돌아가는 코드는 example.js 참고
@@ -59,15 +54,8 @@ $(document).ready(function(){
 });
 ```
 
-# 테스트
-
-```
-mocha -R spec
-```
-
 # TODO
 * 한글 세벌식 최종, 390 자판 지원
 * 한글 두벌식 일부 동시치기 지원
 * 한글 세벌식 전부 동시치기 지원
 * 일본어 자판 지원
-
